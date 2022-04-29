@@ -6,6 +6,20 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
 # from pytorch_lightning.plugins import DDPPlugin
 
+"""
+### Usage:
+python train_lit.py 
+    --dataset_dir <Path to dataset> 
+    --save_dir <Path to save files> 
+    --gpus <Number of GPUs to use> 
+    --epochs <Number of epochs>
+    --comet_name <Name of the experiment on comet.ml>
+    --batch_size <Batch size>
+    --checkpoint <Path to load checkpoint from to continue training>
+
+### Example: 
+python train_lit.py --dataset_dir ../gazetrack/ --save_dir ../Checkpoints/ --gpus 1 --epochs 50 --checkpoint ../Checkpoints/checkpoint.ckpt
+"""
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train GazeTracker')
