@@ -7,9 +7,9 @@ from glob import glob
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-from gaze_tracker.models.gazetrack import gazetrack_model
-from gaze_tracker.dataset.loader import Gaze_Capture
-from gaze_tracker.utils.visualizer import euc, get_colors, plot_pts, plot_comp
+from gazetracker.models.gazetrack import gazetrack_model
+from gazetracker.dataset.loader import Gaze_Capture
+from gazetracker.utils.visualizer import euc, get_colors, plot_pts, plot_comp
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.svm import SVR
 

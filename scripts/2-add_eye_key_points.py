@@ -1,5 +1,5 @@
 import argparse
-from gaze_tracker.dataset.kpadder import add_keypoints
+from gazetracker.dataset.kpadder import add_keypoints
 
 
 def main():

@@ -1,6 +1,6 @@
 import argparse
 import torch.nn.parallel
-from gaze_tracker.models.gazetrack_lit import lit_gazetrack_model
+from gazetracker.models.gazetrack_lit import lit_gazetrack_model
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger

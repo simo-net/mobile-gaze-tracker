@@ -1,5 +1,5 @@
 import argparse
-from gaze_tracker.dataset.splitter import split_data, mit_splitter
+from gazetracker.dataset.splitter import split_data, mit_splitter
 
 """
 Convert the Gaze Capture dataset (and prepare it for easy use in PyTorch) by following the pre-processing procedure

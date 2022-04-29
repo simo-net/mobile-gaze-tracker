@@ -4,8 +4,8 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import ExponentialLR, ReduceLROnPlateau
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
-from gaze_tracker.dataset.loader import Gaze_Capture
-from gaze_tracker.models.base import eye_model, landmark_model
+from gazetracker.dataset.loader import Gaze_Capture
+from gazetracker.models.base import eye_model, landmark_model
 
 
 class lit_gazetrack_model(pl.LightningModule):

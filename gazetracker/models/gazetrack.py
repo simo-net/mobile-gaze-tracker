@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from gaze_tracker.models.base import eye_model, landmark_model
+from gazetracker.models.base import eye_model, landmark_model
 
 
 class gazetrack_model(nn.Module):
