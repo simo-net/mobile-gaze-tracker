@@ -6,6 +6,14 @@ from glob import glob
 from multiprocessing import Process
 
 
+def in_box(box, point):
+    x1, y1, x2, y2 = box
+    x, y = point
+    if x1 < x < x2 and y1 < y < y2:
+        return True
+    return False
+
+
 def keypoints_adder(files: list, p: str):
     """
     Add eye landmarks to the metafiles of the Gaze Capture Dataset using DLib.
@@ -31,48 +39,45 @@ def keypoints_adder(files: list, p: str):
         else:
             no_face += 1
             faces = detector(bw_img, 1)
+            if not faces:
+                continue
+            eye_up_bound, eye_low_bound = min([leye_y, reye_y]), max([leye_y + leye_h, reye_y + reye_h])
             for face in faces:
-                if face.left() < reye_x and face.top() < reye_y and face.right() > leye_x and face.bottom() > leye_y + leye_h:
-                    fx, fy, fw, fh = face.left(), face.top(), face.right() - face.left, face.bottom() - face.top()
+                # check that the detected face comprehends all eye points
+                if face.left() < reye_x and face.right() > leye_x+leye_w and face.top() < eye_up_bound and face.bottom() > eye_low_bound:
+                    fx, fy, fw, fh = face.left(), face.top(), face.right() - face.left(), face.bottom() - face.top()
                     break
-
-        face_rect = dlib.rectangle(fx, fy, fx + fw, fy + fh)
+        face_rect = dlib.rectangle(fx, fy, fx+fw, fy+fh)
         kps = predictor(bw_img, face_rect)
 
-        # make sure the detected landmark point are within the eye bounding box
-        if (in_box((reye_x - buffer,
-                    reye_y - buffer,
-                    reye_w + (buffer * 2),
-                    reye_h + (buffer * 2)),
-                   (kps.part(36).x, kps.part(36).y))
-                and in_box((reye_x - buffer,
-                            reye_y - buffer,
-                            reye_w + (buffer * 2),
-                            reye_h * (buffer * 2)),
-                           (kps.part(39).x, kps.part(39).y))):
+        # make sure the detected landmark points are within the eye bounding box (with margin "buffer" in all directions)
+        eye_box = (reye_x - buffer,
+                   reye_y - buffer,
+                   reye_x + reye_w + buffer,
+                   reye_y + reye_h + buffer)
+        if in_box(eye_box, (kps.part(36).x, kps.part(36).y) and in_box(eye_box, (kps.part(39).x, kps.part(39).y))):
             meta['reye_x1'], meta['reye_y1'] = kps.part(36).x, kps.part(36).y
             meta['reye_x2'], meta['reye_y2'] = kps.part(39).x, kps.part(39).y
         else:
             err_ctr += 1
-            meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y + (reye_h // 2)
-            meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + (reye_h // 2)
+            # # TODO: check this! Doing so reye_y1 is equal to reye_y2
+            # meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y + (reye_h // 2)
+            # meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + (reye_h // 2)
+            # # TODO: maybe the following is better?
+            meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y
+            meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + reye_h
 
-        if (in_box((leye_x - buffer,
-                    leye_y - buffer,
-                    leye_w + (buffer * 2),
-                    leye_h + (buffer * 2)),
-                   (kps.part(42).x, kps.part(42).y))
-                and in_box((leye_x - buffer,
-                            leye_y - buffer,
-                            leye_w + (buffer * 2),
-                            leye_h + (buffer * 2)),
-                           (kps.part(45).x, kps.part(45).y))):
+        if in_box(eye_box, (kps.part(42).x, kps.part(42).y) and in_box(eye_box, (kps.part(45).x, kps.part(45).y))):
             meta['leye_x1'], meta['leye_y1'] = kps.part(42).x, kps.part(42).y
             meta['leye_x2'], meta['leye_y2'] = kps.part(45).x, kps.part(45).y
         else:
             err_ctr += 1
-            meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y + (leye_h // 2)
-            meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + (leye_h // 2)
+            # # TODO: check this! Doing so leye_y1 is equal to leye_y2
+            # meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y - (leye_h // 2)
+            # meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + (leye_h // 2)
+            # # TODO: maybe the following is better?
+            meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y
+            meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + leye_h
 
         with open(meta_file, 'w') as outfile:
             json.dump(meta, outfile)

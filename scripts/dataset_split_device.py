@@ -3,7 +3,6 @@ import json
 import shutil
 import argparse
 from glob import glob
-from tqdm import tqdm
 from multiprocessing import Process
 
 '''
@@ -20,14 +19,14 @@ devices = ['iPhone4S', 'iPhone5', 'iPhone5C', 'iPhone5S', 'iPhone6', 'iPhone6s',
 
 
 def convert_dataset(files, out_root):
-    for i in tqdm(files):
+    for i in files:
         with open(i) as f:
             data = json.load(f)
             device = data['device'].replace(' ', '')
 
-        ds = i.split('/')[-3]
         img_file = i.replace('meta', 'images').replace('.json', '.jpg')
-        out_path = out_root + '/' + device + "/" + ds + "/"
+        split = i.split('/')[-3]
+        out_path = out_root + '/' + device + "/" + split + "/"
 
         shutil.copy(img_file, out_path + "/images/")
         shutil.copy(i, out_path + "/meta/")
