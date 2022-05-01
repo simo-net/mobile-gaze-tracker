@@ -47,35 +47,29 @@ def keypoints_adder(files: list, p: str):
                 if face.left() < reye_x and face.right() > leye_x+leye_w and face.top() < eye_up_bound and face.bottom() > eye_low_bound:
                     fx, fy, fw, fh = face.left(), face.top(), face.right() - face.left(), face.bottom() - face.top()
                     break
-        face_rect = dlib.rectangle(fx, fy, fx+fw, fy+fh)
-        kps = predictor(bw_img, face_rect)
+        kps = predictor(bw_img, dlib.rectangle(fx, fy, fx+fw, fy+fh))
 
         # make sure the detected landmark points are within the eye bounding box (with margin "buffer" in all directions)
         eye_box = (reye_x - buffer,
                    reye_y - buffer,
                    reye_x + reye_w + buffer,
                    reye_y + reye_h + buffer)
-        if in_box(eye_box, (kps.part(36).x, kps.part(36).y) and in_box(eye_box, (kps.part(39).x, kps.part(39).y))):
-            meta['reye_x1'], meta['reye_y1'] = kps.part(36).x, kps.part(36).y
-            meta['reye_x2'], meta['reye_y2'] = kps.part(39).x, kps.part(39).y
+
+        reye_x1, reye_y1, reye_x2, reye_y2 = kps.part(36).x, kps.part(36).y, kps.part(39).x, kps.part(39).y
+        if in_box(eye_box, (reye_x1, reye_y1) and in_box(eye_box, (reye_x2, reye_y2))):
+            meta['reye_x1'], meta['reye_y1'] = reye_x1, reye_y1
+            meta['reye_x2'], meta['reye_y2'] = reye_x2, reye_y2
         else:
             err_ctr += 1
-            # # TODO: check this! Doing so reye_y1 is equal to reye_y2
-            # meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y + (reye_h // 2)
-            # meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + (reye_h // 2)
-            # # TODO: maybe the following is better?
             meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y
             meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + reye_h
 
-        if in_box(eye_box, (kps.part(42).x, kps.part(42).y) and in_box(eye_box, (kps.part(45).x, kps.part(45).y))):
-            meta['leye_x1'], meta['leye_y1'] = kps.part(42).x, kps.part(42).y
-            meta['leye_x2'], meta['leye_y2'] = kps.part(45).x, kps.part(45).y
+        leye_x1, leye_y1, leye_x2, leye_y2 = kps.part(42).x, kps.part(42).y, kps.part(45).x, kps.part(45).y
+        if in_box(eye_box, (leye_x1, leye_y1) and in_box(eye_box, (leye_x2, leye_y2))):
+            meta['leye_x1'], meta['leye_y1'] = leye_x1, leye_y1
+            meta['leye_x2'], meta['leye_y2'] = leye_x2, leye_y2
         else:
             err_ctr += 1
-            # # TODO: check this! Doing so leye_y1 is equal to leye_y2
-            # meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y - (leye_h // 2)
-            # meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + (leye_h // 2)
-            # # TODO: maybe the following is better?
             meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y
             meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + leye_h
 
