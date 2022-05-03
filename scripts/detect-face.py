@@ -2,28 +2,28 @@ import cv2
 import dlib
 from imutils import face_utils
 
-# initialize dlib's face detector (HOG-based) and then create
-# the facial landmark predictor
+# initialize dlib's face detector (based on Histogram of Oriented Gradients (HOGs) + Linear SVM)
+# and then create the facial landmark predictor
 p = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(p)
 
 cap = cv2.VideoCapture(0)
- 
+
 while True:
     # load the input image and convert it to grayscale
     _, image = cap.read()
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        
+    bw_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
     # detect faces in the grayscale image
-    rects = detector(gray, 0)
+    rects = detector(bw_img, 1)
     
     # loop over the face detections
     for (i, rect) in enumerate(rects):
         # determine the facial landmarks for the face region, then
         # convert the facial landmark (x, y)-coordinates to a NumPy
         # array
-        shape = predictor(gray, rect)
+        shape = predictor(bw_img, rect)
         shape = face_utils.shape_to_np(shape)
     
         # loop over the (x, y)-coordinates for the facial landmarks

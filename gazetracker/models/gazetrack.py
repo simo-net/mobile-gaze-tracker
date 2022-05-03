@@ -22,7 +22,7 @@ class gazetrack_model(nn.Module):
                                             nn.Linear(8, 4),
                                             nn.BatchNorm1d(4, momentum=0.9),
                                             nn.ReLU(inplace=True),
-                                            nn.Linear(4, 2), )
+                                            nn.Linear(4, 2))
 
     def forward(self, leftEye, rightEye, lms):
         l_eye_feat = torch.flatten(self.eye_model(leftEye), 1)

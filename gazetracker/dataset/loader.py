@@ -4,25 +4,23 @@ import torch
 from glob import glob
 from PIL import Image
 from torch.utils.data import Dataset
-from torchvision.transforms import Normalize, Resize, Compose, ToTensor, RandomCrop
+from torchvision.transforms import Normalize, Resize, Compose, ToTensor  # , RandomCrop
 
 
 class Gaze_Capture(Dataset):
     def __init__(self, root: str, split: str = 'train', size: (int, int) = (128, 128),
-                 transform: bool = True, verbose: bool = True):
-        if split == 'test':
-            self.files = glob(os.path.join(root, "*.jpg"))
-        else:
-            self.files = glob(os.path.join(root, "images", "*.jpg"))
+                 verbose: bool = True):
 
-        self.root = root
-        self.split = split
-        self.size = size
-        self.transform = transform
-        self.aug = self.get_transforms(split, size)
+        self.files = glob(os.path.join(root, "images", "*.jpg"))
+        # self.root = root
+        # self.split = split
+        # self.size = size
+        # self.transform = transform
+        self.resize_and_norm = self.get_transforms(size)
+        # TODO: maye could add some data augmentation for train data
 
         if verbose:
-            print(f"Num files for {split} = {len(self.files)}")
+            print(f"Number of images in the {split.upper()} set = {len(self.files)}")
 
     def __getitem__(self, idx: int):
         # Take image and metadata from file
@@ -43,29 +41,23 @@ class Gaze_Capture(Dataset):
         # Right eye
         rx, ry, rw, rh = meta['reye_x'], meta['reye_y'], meta['reye_w'], meta['reye_h']
         r_eye = image.crop((max(0, rx), max(0, ry), max(0, rx + rw), max(0, ry + rh)))
-        r_eye = self.aug(r_eye)
+        r_eye = self.resize_and_norm(r_eye)
 
         # Left eye
         lx, ly, lw, lh = meta['leye_x'], meta['leye_y'], meta['leye_w'], meta['leye_h']
         l_eye = image.crop((max(0, lx), max(0, ly), max(0, lx + lw), max(0, ly + lh)))
         l_eye = l_eye.transpose(Image.FLIP_LEFT_RIGHT)  # Note: we flip the left eye!
-        l_eye = self.aug(l_eye)
+        l_eye = self.resize_and_norm(l_eye)
 
         return name, l_eye, r_eye, kps, out, screen_w, screen_h
 
     @staticmethod
-    def get_transforms(split: str, size: (int, int)):
-        if split == "train":
-            list_transforms = [Resize((size[0] + 10, size[1] + 10)),
-                               RandomCrop((size[0], size[1])),
-                               ToTensor(),
-                               Normalize(mean=(0.3741, 0.4076, 0.5425), std=(0.02, 0.02, 0.02)), ]
-
-        else:
-            list_transforms = [Resize((size[0], size[1])),
-                               ToTensor(),
-                               Normalize(mean=(0.3741, 0.4076, 0.5425), std=(0.02, 0.02, 0.02)), ]
-
+    def get_transforms(size: (int, int)):
+        list_transforms = [
+            Resize((size[0], size[1])),
+            ToTensor(),
+            Normalize(mean=(0.3741, 0.4076, 0.5425), std=(0.02, 0.02, 0.02))  # TODO: check out mean and std of RGB eye-ROIs in the dataset
+        ]
         return Compose(list_transforms)
 
     def __len__(self):

@@ -52,19 +52,13 @@ def split_dataset(files, out_root):
 
 
 def add_ttv(path):
-    os.mkdir(path + "/train/")
-    os.mkdir(path + "/test/")
-
-    os.mkdir(path + "/train/images/")
-    os.mkdir(path + "/train/meta/")
-
-    os.mkdir(path + "/test/images")
-    os.mkdir(path + "/test/meta")
+    os.makedirs(os.path.join(path, "train", "images"), exist_ok=True)
+    os.makedirs(os.path.join(path + "train", "meta"), exist_ok=True)
+    os.makedirs(os.path.join(path + "test", "images"), exist_ok=True)
+    os.makedirs(os.path.join(path + "test", "meta"), exist_ok=True)
 
 
 def prep_path(path, clear=True):
-    if not os.path.isdir(path):
-        os.makedirs(path, 0o777)
     if clear:
         files = os.listdir(path)
         for f in files:
@@ -73,7 +67,7 @@ def prep_path(path, clear=True):
                 shutil.rmtree(fPath)
             else:
                 os.remove(fPath)
-    add_ttv(path + "/")
+    add_ttv(path)
     return path
 
 

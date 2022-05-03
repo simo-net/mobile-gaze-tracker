@@ -26,7 +26,7 @@ model.to(dev)
 model.eval()
 
 # ## Run predictions on entire test set
-file_root = root + "/gt_fin/test/images/"
+file_root = root + "/gt_fin/test/"
 test_dataset = Gaze_Capture(file_root, split='test')
 test_dataloader = DataLoader(test_dataset, batch_size=256, num_workers=10, pin_memory=False, shuffle=False)
 

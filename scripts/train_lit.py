@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument('--comet_name', default='gazetrack-lit', help='Path store checkpoints')
     parser.add_argument('--gpus', default=1, type=int, help='Number of GPUs to use')
     parser.add_argument('--batch_size', default=256, type=int, help='Batch size')
+    parser.add_argument('--lr', default=0.016, type=float, help='Learning rate')
     parser.add_argument('--checkpoint', default=None, help='Path to load pre trained weights')
     return parser.parse_args()
 
@@ -42,7 +43,9 @@ if __name__ == '__main__':
         project_name=proj_name,
     )
     
-    model = lit_gazetrack_model(args.dataset_dir, args.save_dir, args.batch_size, logger)
+    model = lit_gazetrack_model(data_path=args.dataset_dir, save_path=args.save_dir,
+                                batch_size=args.batch_size, lr=args.lr,
+                                logger=logger)
     if args.checkpoint:
         if args.gpus==0:
             w = torch.load(args.checkpoint, map_location=torch.device('cpu'))['state_dict']
