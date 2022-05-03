@@ -15,11 +15,11 @@ FACIAL_LANDMARKS_IDXS = dict([
 buffer = 10
 
 p_hog = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks.dat"
-# p_hog = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks_GTX.dat"
-p_cnn = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/face_detector_mmod.dat"
+# p_gtx = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks_GTX.dat"
+# p_cnn = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/face_detector_mmod.dat"
 
-# face_detector = dlib.get_frontal_face_detector()
-face_detector = dlib.cnn_face_detection_model_v1(p_cnn)
+face_detector = dlib.get_frontal_face_detector()
+# face_detector = dlib.cnn_face_detection_model_v1(p_cnn)
 kps_predictor = dlib.shape_predictor(p_hog)
 
 
