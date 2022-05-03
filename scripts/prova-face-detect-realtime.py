@@ -61,15 +61,6 @@ while True:
     face_rect = dlib.rectangle(fx, fy, fx + fw, fy + fh)
     kps = kps_predictor(bw_img, face_rect)
 
-    # reye_x1, reye_y1 = kps.part(36).x, kps.part(36).y
-    # reye_x2, reye_y2 = kps.part(39).x, kps.part(39).y
-    # leye_x1, leye_y1 = kps.part(42).x, kps.part(42).y
-    # leye_x2, leye_y2 = kps.part(45).x, kps.part(45).y
-    # cv2.rectangle(img, (fx, fy), (fx+fw, fy+fh), (0, 0, 255), 5)
-    # cv2.rectangle(img, (reye_x1, reye_y1), (reye_x2, reye_y2), (0, 255, 0), 3)
-    # cv2.rectangle(img, (leye_x1, leye_y1), (leye_x2, leye_y2), (0, 255, 0), 3)
-    # cv2.imshow('Face Detection', img)
-
     shape = face_utils.shape_to_np(kps)
     # for (name, (i, j)) in FACIAL_LANDMARKS_IDXS.items():
         # for (x, y) in shape[i:j]:
