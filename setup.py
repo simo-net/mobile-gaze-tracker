@@ -18,7 +18,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     include_package_data=False,
     packages=setuptools.find_packages(),
-    install_requires=["numpy", "tqdm", "sklearn", "skbuild", "torch", "torchvision", "matplotlib", "opencv-python", "dlib"],
+    install_requires=["numpy", "tqdm", "sklearn", "scikit-build", "torch", "torchvision", "matplotlib", "opencv-python", "dlib"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: Linux",
