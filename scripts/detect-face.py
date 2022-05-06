@@ -4,7 +4,7 @@ from imutils import face_utils
 
 # initialize dlib's face detector (based on Histogram of Oriented Gradients (HOGs) + Linear SVM)
 # and then create the facial landmark predictor
-p = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks.dat"
+p = "./checkpoints/shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(p)
 

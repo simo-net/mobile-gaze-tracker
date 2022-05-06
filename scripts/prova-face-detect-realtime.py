@@ -4,19 +4,19 @@ import numpy as np
 from imutils import face_utils
 
 FACIAL_LANDMARKS_IDXS = dict([
-	("mouth", (48, 68)),
-	("right_eyebrow", (17, 22)),
-	("left_eyebrow", (22, 27)),
-	("right_eye", (36, 42)),
-	("left_eye", (42, 48)),
-	("nose", (27, 35)),
-	("jaw", (0, 17))
+    ("mouth", (48, 68)),
+    ("right_eyebrow", (17, 22)),
+    ("left_eyebrow", (22, 27)),
+    ("right_eye", (36, 42)),
+    ("left_eye", (42, 48)),
+    ("nose", (27, 35)),
+    ("jaw", (0, 17))
 ])
 buffer = 10
 
-p_hog = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks.dat"
-# p_gtx = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/shape_predictor_68_face_landmarks_GTX.dat"
-# p_cnn = "/home/alien/PycharmProjects/mobile-gaze-tracker/checkpoints/face_detector_mmod.dat"
+p_hog = "./checkpoints/shape_predictor_68_face_landmarks.dat"
+# p_gtx = "./checkpoints/shape_predictor_68_face_landmarks_GTX.dat"
+# p_cnn = "./checkpoints/face_detector_mmod.dat"
 
 face_detector = dlib.get_frontal_face_detector()
 # face_detector = dlib.cnn_face_detection_model_v1(p_cnn)
@@ -63,11 +63,11 @@ while True:
 
     shape = face_utils.shape_to_np(kps)
     # for (name, (i, j)) in FACIAL_LANDMARKS_IDXS.items():
-        # for (x, y) in shape[i:j]:
-        #     cv2.circle(img, (x, y), 1, (0, 0, 255), -1)
+    # for (x, y) in shape[i:j]:
+    #     cv2.circle(img, (x, y), 1, (0, 0, 255), -1)
     for (i, j) in [FACIAL_LANDMARKS_IDXS['right_eye'], FACIAL_LANDMARKS_IDXS['left_eye']]:
         (x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
-        cv2.rectangle(img, (x-buffer, y-buffer), (x+w+buffer, y+h+buffer), (0, 255, 0), 3)
+        cv2.rectangle(img, (x - buffer, y - buffer), (x + w + buffer, y + h + buffer), (0, 255, 0), 3)
 
     cv2.imshow('Face Detection', img)
 

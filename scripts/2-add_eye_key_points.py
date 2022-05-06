@@ -4,8 +4,8 @@ from gazetracker.dataset.kpadder import add_keypoints
 
 def main():
     parser = argparse.ArgumentParser(description='Adding eye key points to meta data')
-    parser.add_argument('--dir', default='./dataset/', help='Path to converted dataset. Use dataset_converter')
-    parser.add_argument('--p', default="./checkpoints/shape_predictor_68_face_landmarks.dat",
+    parser.add_argument('--dir', default='./dataset/', help='Path to converted dataset. Use dataset_converter_*.py')
+    parser.add_argument('--predictor', default="./checkpoints/shape_predictor_68_face_landmarks.dat",
                         help='Path to trained facial landmark model file')
     parser.add_argument('--workers', default=40, type=int, help='Number of CPU cores available')
     args = parser.parse_args()

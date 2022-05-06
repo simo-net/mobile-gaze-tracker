@@ -12,6 +12,7 @@ Steps:
     3. Split data based on MIT annotation (separate participants in train, test, val)
 """
 
+
 def main():
     parser = argparse.ArgumentParser(description='Convert the MIT Gaze-Capture Dataset')
     parser.add_argument('--dir', default="../../dataset/", help='Path to unzipped MIT dataset')

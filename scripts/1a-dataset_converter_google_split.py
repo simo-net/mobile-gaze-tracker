@@ -13,6 +13,7 @@ Steps:
     4. Split data of each participant into train, test, split
 """
 
+
 def main():
     parser = argparse.ArgumentParser(description='Convert the MIT Gaze-Capture Dataset')
     parser.add_argument('--dir', default="../../dataset/", help='Path to unzipped MIT dataset')
