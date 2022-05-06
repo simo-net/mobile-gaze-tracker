@@ -9,10 +9,10 @@ from gazetracker.models.base import eye_model, landmark_model
 
 
 class lit_gazetrack_model(pl.LightningModule):
-    def __init__(self, data_path, save_path, batch_size, logger, workers=20):
+    def __init__(self, data_path, save_path, batch_size, lr, logger, workers=20):
         super(lit_gazetrack_model, self).__init__()
 
-        self.lr = 0.016
+        self.lr = lr
         self.batch_size = batch_size
 
         self.data_path = data_path

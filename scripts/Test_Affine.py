@@ -16,10 +16,10 @@ import cv2
 root = os.environ['SLURM_TMPDIR']
 
 # ## Load model and weights
-f = root + '/svr13_gt_fin/test/images/'
+file_root = root + '/svr13_gt_fin/test/'
 weight_file = '../Checkpoints/GoogleCheckpoint_MITSplit.ckpt'
 print(weight_file)
-print(f, len(glob(f + '*.jpg')))
+print(file_root, len(glob(file_root + 'images/*.jpg')))
 
 # In[5]:
 model = gazetrack_model()
@@ -32,7 +32,7 @@ model.eval()
 preds, gt = [], []
 ctr = 1
 model.eval()
-test_dataset = Gaze_Capture(f, split='test')
+test_dataset = Gaze_Capture(file_root, split='test')
 test_dataloader = DataLoader(test_dataset, batch_size=256, num_workers=10, pin_memory=False, shuffle=False, )
 for j in tqdm(test_dataloader):
     leye, reye, kps, target = j[1].cuda(), j[2].cuda(), j[3].cuda(), j[4].cuda()
@@ -51,7 +51,7 @@ dist = euc(preds, gt)
 print("Mean Euclidean Distance: ", dist.mean())
 
 # ## Total Test
-all_files = glob(f + "*.jpg")
+all_files = glob(file_root + "images/*.jpg")
 all_files = [i[:-10] for i in all_files]
 files = np.unique(all_files)
 print('Found ', len(all_files), ' images from ', len(files), ' subjects.')

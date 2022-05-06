@@ -15,7 +15,6 @@ completely unzipped GazeCapture dataset.
 
 
 def split_dataset(root, folders, data_root, new_root):
-    pts = []
     for i in tqdm(folders):
         part = i[-6:-1]
         data = json.load(open(root + "/" + part + "/dotInfo.json"))
@@ -76,26 +75,20 @@ def split_dataset(root, folders, data_root, new_root):
                 elif fids[frame_idx] == 1:
                     shutil.copy(data_root + "/images/" + fname + ".jpg", new_root + "/train/images/")
                     shutil.copy(data_root + "/meta/" + fname + ".json", new_root + "/train/meta/")
-
             except:
                 pass
 
 
 def add_ttv(path):
-    os.mkdir(path + "/train/")
-    os.mkdir(path + "/val/")
-    os.mkdir(path + "/test/")
-    os.mkdir(path + "/train/images/")
-    os.mkdir(path + "/train/meta/")
-    os.mkdir(path + "/val/images/")
-    os.mkdir(path + "/val/meta/")
-    os.mkdir(path + "/test/images")
-    os.mkdir(path + "/test/meta")
+    os.makedirs(os.path.join(path, "train", "images"), exist_ok=True)
+    os.makedirs(os.path.join(path + "train", "meta"), exist_ok=True)
+    os.makedirs(os.path.join(path + "val", "images"), exist_ok=True)
+    os.makedirs(os.path.join(path + "val", "meta"), exist_ok=True)
+    os.makedirs(os.path.join(path + "test", "images"), exist_ok=True)
+    os.makedirs(os.path.join(path + "test", "meta"), exist_ok=True)
 
 
 def prep_path(path, clear=True):
-    if not os.path.isdir(path):
-        os.makedirs(path, 0o777)
     if clear:
         files = os.listdir(path)
         for f in files:
@@ -104,7 +97,7 @@ def prep_path(path, clear=True):
                 shutil.rmtree(fPath)
             else:
                 os.remove(fPath)
-    add_ttv(path + "/")
+    add_ttv(path)
     return path
 
 
