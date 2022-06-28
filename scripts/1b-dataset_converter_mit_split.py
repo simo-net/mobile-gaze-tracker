@@ -12,12 +12,6 @@ Steps:
     3. Split data based on MIT annotation (separate participants in train, test, val)
 """
 
-# Usage:
-# python ./scripts/1b-dataset_converter_mit_split.py
-#        --in_dir '/home/simonetunige/data/mobile-gaze/gaze-capture'
-#        --out_dir '/home/simonetunige/data/mobile-gaze/gaze-capture_mit-split'
-#        --workers 6
-
 
 def main():
     parser = argparse.ArgumentParser(description='Convert the MIT Gaze-Capture Dataset')

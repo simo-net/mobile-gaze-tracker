@@ -13,12 +13,6 @@ Steps:
     4. Split data of each participant into train, test, split
 """
 
-# Usage:
-# python ./scripts/1a-dataset_converter_google_split.py
-#        --in_dir '/home/simonetunige/data/mobile-gaze/gaze-capture'
-#        --out_dir '/home/simonetunige/data/mobile-gaze/gaze-capture_google-split'
-#        --workers 6
-
 
 def main():
     parser = argparse.ArgumentParser(description='Convert the MIT Gaze-Capture Dataset')
