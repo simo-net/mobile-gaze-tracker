@@ -224,6 +224,7 @@ def split_data(in_dir: str, out_dir: str, splitter_function: object,
     # split_data(in_dir='/path/to/data', out_dir='/path/for/preprocessed/data', splitter=google_splitter, workers=6)
     procs = []
     files = glob(os.path.join(in_dir, "*"))
+    files = list(filter(lambda f: not os.path.isfile(f), files))  # only keep directories, not files
     chunk = len(files) // workers
     for w in range(workers):
         files_chunk = files[w*chunk: (w+1)*chunk]
