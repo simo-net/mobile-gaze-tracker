@@ -19,8 +19,8 @@ def main():
     parser.add_argument('--in_dir', type=str, default="../../dataset/",
                         help='Path to unzipped MIT dataset.')
     parser.add_argument('--out_dir', type=str, default="../../google_split/",
-                        help='Path to new dataset should have "image" and "meta" folders with '
-                             '"train", "val" and "test" subfolders.')
+                        help='Path to new dataset should have "image" and "meta" sub-folders inside each '
+                             '"train", "val" and "test" folders.')
     parser.add_argument('--workers', type=int, default=1, help='Number of threads')
     args = parser.parse_args()
 
