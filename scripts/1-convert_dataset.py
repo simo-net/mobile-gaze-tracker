@@ -51,7 +51,7 @@ def main():
     split_data(in_dir=args.in_dir, out_dir=args.out_dir, splitter_function=splitter_function, workers=args.workers)
     print("Conversion Complete.")
 
-    print('\nStarting to add key point...')
+    print('\nStarting to add key points...')
     add_keypoints(in_dir=args.out_dir, p=args.predictor, workers=args.workers)
     print("Key-points added.")
 

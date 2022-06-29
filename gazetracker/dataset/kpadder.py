@@ -2,9 +2,10 @@ import os
 import cv2
 import json
 import dlib
+import numpy as np
 from glob import glob
 from multiprocessing import Process
-import numpy as np
+
 
 FACIAL_LANDMARKS_DLIB = dict([
     ("mouth", (48, 68)),
@@ -38,6 +39,8 @@ def kps_to_np(shape, dtype="int"):
     return coords
 
 
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
 def keypoints_adder(files: list, p: str):
     """
     Add eye landmarks to the metafiles of the Gaze Capture Dataset using DLib.
@@ -85,19 +88,41 @@ def keypoints_adder(files: list, p: str):
         leye_x_new, leye_y_new = leye_x_new - margin, leye_y_new - margin
         leye_w_new, leye_h_new = leye_w_new + 2 * margin, leye_h_new + 2 * margin
 
+        # fig, ax = plt.subplots()
+        # ax.imshow(bw_img, cmap='gray')
+        # rect1 = patches.Rectangle((reye_x, reye_y), reye_w, reye_h,
+        #                           linewidth=1, edgecolor='r', facecolor='none')
+        # rect2 = patches.Rectangle((leye_x, leye_y), leye_w, leye_h,
+        #                           linewidth=1, edgecolor='r', facecolor='none')
+        # ax.add_patch(rect1)
+        # ax.add_patch(rect2)
+        # rect1 = patches.Rectangle((reye_x_new, reye_y_new), reye_w_new, reye_h_new,
+        #                           linewidth=1, edgecolor='g', facecolor='none')
+        # rect2 = patches.Rectangle((leye_x_new, leye_y_new), leye_w_new, leye_h_new,
+        #                           linewidth=1, edgecolor='g', facecolor='none')
+        # ax.add_patch(rect1)
+        # ax.add_patch(rect2)
+        # rect1 = patches.Rectangle((reye_x - margin, reye_y - margin), reye_w + 2 * margin, reye_h + 2 * margin,
+        #                           linewidth=1, edgecolor='b', facecolor='none')
+        # rect2 = patches.Rectangle((leye_x - margin, leye_y - margin), leye_w + 2 * margin, leye_h + 2 * margin,
+        #                           linewidth=1, edgecolor='b', facecolor='none')
+        # ax.add_patch(rect1)
+        # ax.add_patch(rect2)
+        # plt.show()
+
         # Make sure the detected landmark points are within the original eye bounding boxes (from metadata)
-        eye_box = (reye_x - margin // 2, reye_y - margin // 2,
-                   reye_x + reye_w + margin // 2, reye_y + reye_h + margin // 2)
-        if in_box(eye_box,
-                  (reye_x_new, reye_y_new) and in_box(eye_box, (reye_x_new + reye_w_new, reye_y_new + reye_h_new))):
+        reye_box = (reye_x - margin, reye_y - margin,
+                    reye_x + reye_w + margin, reye_y + reye_h + margin)
+        if in_box(reye_box, (reye_x_new, reye_y_new)) and in_box(reye_box, (reye_x_new + reye_w_new, reye_y_new + reye_h_new)):
             meta['reye_x1'], meta['reye_y1'] = reye_x_new, reye_y_new
             meta['reye_x2'], meta['reye_y2'] = reye_x_new + reye_w_new, reye_y_new + reye_h_new
         else:
             err_ctr += 1
             meta['reye_x1'], meta['reye_y1'] = reye_x, reye_y
             meta['reye_x2'], meta['reye_y2'] = reye_x + reye_w, reye_y + reye_h
-        if in_box(eye_box,
-                  (leye_x_new, leye_y_new) and in_box(eye_box, (leye_x_new + leye_w_new, leye_y_new + leye_h_new))):
+        leye_box = (leye_x - margin, leye_y - margin,
+                    leye_x + leye_w + margin, leye_y + leye_h + margin)
+        if in_box(leye_box, (leye_x_new, leye_y_new)) and in_box(leye_box, (leye_x_new + leye_w_new, leye_y_new + leye_h_new)):
             meta['leye_x1'], meta['leye_y1'] = leye_x_new, leye_y_new
             meta['leye_x2'], meta['leye_y2'] = leye_x_new + leye_w_new, leye_y_new + leye_h_new
         else:
@@ -105,6 +130,7 @@ def keypoints_adder(files: list, p: str):
             meta['leye_x1'], meta['leye_y1'] = leye_x, leye_y
             meta['leye_x2'], meta['leye_y2'] = leye_x + leye_w, leye_y + leye_h
 
+        meta_file = meta_file[:-5] + '_new.json'  # TODO: remove this and overwrite the meta file!!!
         with open(meta_file, 'w') as outfile:
             json.dump(meta, outfile)
 

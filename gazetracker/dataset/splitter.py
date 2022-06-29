@@ -23,8 +23,6 @@ def google_splitter(files: list, out_root: str):
     """
 
     for i in files:
-        expt_name = i.split('/')[-2]  # 00002, 00011, ...
-
         with open(os.path.join(i, 'appleFace.json')) as f:
             face_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
         with open(os.path.join(i, 'appleLeftEye.json')) as f:
@@ -113,11 +111,11 @@ def google_splitter(files: list, out_root: str):
             meta['reye_x'] += meta['face_x']
             meta['reye_y'] += meta['face_y']
 
-            meta_file = os.path.join(out_dir, 'meta', expt_name + '__' + fname + '.json')
+            meta_file = os.path.join(out_dir, 'meta', fname + '.json')
             with open(meta_file, 'w') as outfile:
                 json.dump(meta, outfile)
             shutil.copy(os.path.join(i, 'frames', fname + '.jpg'),
-                        os.path.join(out_dir, 'images', expt_name + '__' + fname + '.jpg'))
+                        os.path.join(out_dir, 'images', fname + '.jpg'))
 
         print(f"{i.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
 
@@ -139,8 +137,6 @@ def mit_splitter(files: list, out_root: str):
     """
 
     for i in files:
-        expt_name = i.split('/')[-2]  # 00002, 00011, ...
-
         with open(os.path.join(i, 'appleFace.json')) as f:
             face_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
         with open(os.path.join(i, 'appleLeftEye.json')) as f:
@@ -204,11 +200,11 @@ def mit_splitter(files: list, out_root: str):
             meta['reye_x'] += meta['face_x']
             meta['reye_y'] += meta['face_y']
 
-            meta_file = os.path.join(out_dir, 'meta', expt_name + '__' + fname + '.json')
+            meta_file = os.path.join(out_dir, 'meta', fname + '.json')
             with open(meta_file, 'w') as outfile:
                 json.dump(meta, outfile)
             shutil.copy(os.path.join(i, 'frames', fname + '.jpg'),
-                        os.path.join(out_dir, 'images', expt_name + '__' + fname + '.jpg'))
+                        os.path.join(out_dir, 'images', fname + '.jpg'))
 
         print(f"{i.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
 
