@@ -22,26 +22,26 @@ def google_splitter(files: list, out_root: str):
     4. Split data of each participant into train, test, split
     """
 
-    for i in files:
-        with open(os.path.join(i, 'appleFace.json')) as f:
+    for participant in files:
+        with open(os.path.join(participant, 'appleFace.json')) as f:
             face_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'appleLeftEye.json')) as f:
+        with open(os.path.join(participant, 'appleLeftEye.json')) as f:
             l_eye_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'appleRightEye.json')) as f:
+        with open(os.path.join(participant, 'appleRightEye.json')) as f:
             r_eye_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'dotInfo.json')) as f:
+        with open(os.path.join(participant, 'dotInfo.json')) as f:
             dot = json.load(f)  # keys: 'DotNum', 'XPts', 'YPts', 'XCam', 'YCam', 'Time'
 
-        # with open(os.path.join(i, 'faceGrid.json')) as f:
+        # with open(os.path.join(participant, 'faceGrid.json')) as f:
         #     facegrid = json.load(f)  # keys: 'X', 'Y', 'W', 'H', 'IsValid'
-        # with open(os.path.join(i, 'frames.json')) as f:
+        # with open(os.path.join(participant, 'frames.json')) as f:
         #     frames = json.load(f)  # E.G.: 00000.jpg, 00001.jpg, ...
-        # with open(os.path.join(i, 'motion.json')) as f:
+        # with open(os.path.join(participant, 'motion.json')) as f:
         #     motion = json.load(f)  # list of dicts with keys 'GravityX', 'UserAcceleration', 'AttitudeRotationMatrix', 'AttitudePitch', 'Time', 'AttitudeQuaternion', 'AttitudeRoll', 'RotationRate', 'AttitudeYaw', 'DotNum'
 
-        with open(os.path.join(i, 'screen.json')) as f:
+        with open(os.path.join(participant, 'screen.json')) as f:
             screen_info = json.load(f)  # keys: 'H', 'W', 'Orientation'
-        with open(os.path.join(i, 'info.json')) as f:
+        with open(os.path.join(participant, 'info.json')) as f:
             info = json.load(f)  # keys: 'Dataset', 'DeviceName', 'TotalFrames', 'NumFaceDetections', 'NumEyeDetections'
             device = info['DeviceName'].replace(' ', '')  # E.G.: iPhone5, iPhone6, ...
         if not ('iPhone' in device):
@@ -53,10 +53,9 @@ def google_splitter(files: list, out_root: str):
         valid_mask = l_eye_valid & r_eye_valid & portrait_orientation
 
         all_dots = np.asarray(dot['DotNum'])
-        valid_dots = np.unique(all_dots[np.where(valid_mask)])
-
+        val_dots = np.unique(all_dots[np.where(valid_mask)])
         try:
-            train_dots, test_dots = train_test_split(valid_dots, test_size=0.2)
+            train_dots, test_dots = train_test_split(val_dots, test_size=0.2)
         except:
             continue  # Too few training dots to split in train and test, skip participant
         try:
@@ -114,10 +113,10 @@ def google_splitter(files: list, out_root: str):
             meta_file = os.path.join(out_dir, 'meta', fname + '.json')
             with open(meta_file, 'w') as outfile:
                 json.dump(meta, outfile)
-            shutil.copy(os.path.join(i, 'frames', fname + '.jpg'),
+            shutil.copy(os.path.join(participant, 'frames', fname + '.jpg'),
                         os.path.join(out_dir, 'images', fname + '.jpg'))
 
-        print(f"{i.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
+        print(f"{participant.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
 
     return 0
 
@@ -136,26 +135,26 @@ def mit_splitter(files: list, out_root: str):
     3. Split data based on MIT annotation (separate participants in train, test, val)
     """
 
-    for i in files:
-        with open(os.path.join(i, 'appleFace.json')) as f:
+    for participant in files:
+        with open(os.path.join(participant, 'appleFace.json')) as f:
             face_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'appleLeftEye.json')) as f:
+        with open(os.path.join(participant, 'appleLeftEye.json')) as f:
             l_eye_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'appleRightEye.json')) as f:
+        with open(os.path.join(participant, 'appleRightEye.json')) as f:
             r_eye_det = json.load(f)  # keys: 'H', 'W', 'X', 'Y', 'IsValid'
-        with open(os.path.join(i, 'dotInfo.json')) as f:
+        with open(os.path.join(participant, 'dotInfo.json')) as f:
             dot = json.load(f)  # keys: 'DotNum', 'XPts', 'YPts', 'XCam', 'YCam', 'Time'
 
-        # with open(os.path.join(i, 'faceGrid.json')) as f:
+        # with open(os.path.join(participant, 'faceGrid.json')) as f:
         #     facegrid = json.load(f)  # keys: 'X', 'Y', 'W', 'H', 'IsValid'
-        # with open(os.path.join(i, 'frames.json')) as f:
+        # with open(os.path.join(participant, 'frames.json')) as f:
         #     frames = json.load(f)  # E.G.: 00000.jpg, 00001.jpg, ...
-        # with open(os.path.join(i, 'motion.json')) as f:
+        # with open(os.path.join(participant, 'motion.json')) as f:
         #     motion = json.load(f)  # list of dicts with keys 'GravityX', 'UserAcceleration', 'AttitudeRotationMatrix', 'AttitudePitch', 'Time', 'AttitudeQuaternion', 'AttitudeRoll', 'RotationRate', 'AttitudeYaw', 'DotNum'
 
-        with open(os.path.join(i, 'screen.json')) as f:
+        with open(os.path.join(participant, 'screen.json')) as f:
             screen_info = json.load(f)  # keys: 'H', 'W', 'Orientation'
-        with open(os.path.join(i, 'info.json')) as f:
+        with open(os.path.join(participant, 'info.json')) as f:
             info = json.load(f)  # keys: 'Dataset', 'DeviceName', 'TotalFrames', 'NumFaceDetections', 'NumEyeDetections'
             split = info['Dataset']  # E.G.: train, test or val
             device = info['DeviceName'].replace(' ', '')  # E.G.: iPhone5, iPhone6, ...
@@ -203,10 +202,10 @@ def mit_splitter(files: list, out_root: str):
             meta_file = os.path.join(out_dir, 'meta', fname + '.json')
             with open(meta_file, 'w') as outfile:
                 json.dump(meta, outfile)
-            shutil.copy(os.path.join(i, 'frames', fname + '.jpg'),
+            shutil.copy(os.path.join(participant, 'frames', fname + '.jpg'),
                         os.path.join(out_dir, 'images', fname + '.jpg'))
 
-        print(f"{i.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
+        print(f"{participant.split('/')[-1]} folder completed --> {len(valid_ids)}/{len(valid_mask)} valid images")
 
     return 0
 
@@ -223,9 +222,9 @@ def split_data(in_dir: str, out_dir: str, splitter_function: object,
     files = list(filter(lambda f: not os.path.isfile(f), files))  # only keep directories, not files
     chunk = len(files) // workers
     for w in range(workers):
-        files_chunk = files[w*chunk: (w+1)*chunk]
+        files_chunk = files[w * chunk: (w + 1) * chunk]
         if w == workers - 1:
-            files_chunk = files[w*chunk:]
+            files_chunk = files[w * chunk:]
 
         proc = Process(target=splitter_function, args=(files_chunk, out_dir))
         procs.append(proc)

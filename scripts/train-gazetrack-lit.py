@@ -1,14 +1,14 @@
 import argparse
 import torch.nn.parallel
-from gazetracker.models.gazetrack_lit import lit_gazetrack_model
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
 # from pytorch_lightning.plugins import DDPPlugin
+from gazetracker.models.gazetrack_lit import lit_gazetrack_model
 
 """
 ### Usage:
-python train_lit.py 
+python train-gazetrack-lit.py 
     --dataset_dir <Path to dataset> 
     --save_dir <Path to save files> 
     --gpus <Number of GPUs to use> 
@@ -18,7 +18,7 @@ python train_lit.py
     --checkpoint <Path to load checkpoint from to continue training>
 
 ### Example: 
-python train_lit.py --dataset_dir ../gazetrack/ --save_dir ../Checkpoints/ --gpus 1 --epochs 50 --checkpoint ../Checkpoints/checkpoint.ckpt
+python train-gazetrack-lit.py --dataset_dir ../gazetrack/ --save_dir ../Checkpoints/ --gpus 1 --epochs 50 --checkpoint ../Checkpoints/checkpoint.ckpt
 """
 
 def parse_args():

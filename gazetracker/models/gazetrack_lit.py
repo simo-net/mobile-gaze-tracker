@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,6 +10,12 @@ from gazetracker.models.base import eye_model, landmark_model
 
 
 class lit_gazetrack_model(pl.LightningModule):
+    """
+    Model for combining output from the 2 base models (for eye and landmarks):
+    2 fully connected layers (with 8 and 4 hidden units respectively) + 1 final regression head (linear, with 2 units
+    for outputting x and y location of gaze on the phone screen).
+    """
+
     def __init__(self, data_path, save_path, batch_size, lr, logger, workers=20):
         super(lit_gazetrack_model, self).__init__()
 
@@ -50,13 +57,13 @@ class lit_gazetrack_model(pl.LightningModule):
         return out
 
     def train_dataloader(self):
-        train_dataset = Gaze_Capture(self.data_path + "/train/", split='train')
+        train_dataset = Gaze_Capture(os.path.join(self.data_path, "train"), split='train')
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, num_workers=self.workers, shuffle=True)
         self.logger.log_hyperparams({'Num_train_files': len(train_dataset)})
         return train_loader
 
     def val_dataloader(self):
-        val_dataset = Gaze_Capture(self.data_path + "/val/", split='val')
+        val_dataset = Gaze_Capture(os.path.join(self.data_path, "val"), split='val')
         val_loader = DataLoader(val_dataset, batch_size=self.batch_size, num_workers=self.workers, shuffle=False)
         self.logger.log_hyperparams({'Num_val_files': len(val_dataset)})
         return val_loader
