@@ -7,10 +7,9 @@ def main():
     parser.add_argument('--dir', default='./dataset/', help='Path to converted dataset. Use dataset_converter_*.py')
     parser.add_argument('--predictor', default="./checkpoints/shape_predictor_68_face_landmarks.dat",
                         help='Path to trained facial landmark model file.')
-    parser.add_argument('--workers', default=4, type=int, help='Number of CPU cores to use.')
     args = parser.parse_args()
 
-    add_keypoints(in_dir=args.dir, p=args.predictor, workers=args.workers)
+    add_keypoints(in_dir=args.dir, p=args.predictor)
     print("Key-points added.")
 
 

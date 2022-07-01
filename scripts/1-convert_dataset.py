@@ -52,7 +52,7 @@ def main():
     print("Conversion Complete.")
 
     print('\nStarting to add key points...')
-    add_keypoints(in_dir=args.out_dir, p=args.predictor, workers=args.workers)
+    add_keypoints(in_dir=args.out_dir, p=args.predictor)
     print("Key-points added.")
 
 
