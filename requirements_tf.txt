@@ -1,0 +1,10 @@
+numpy
+tqdm
+pillow
+scikit-learn
+scikit-image
+tensorflow
+matplotlib
+opencv-python
+scikit-build
+dlib
