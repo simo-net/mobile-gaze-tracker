@@ -175,9 +175,8 @@ def keypoints_adder(files: list, p: str,
 
 
 def add_keypoints(in_dir: str, p: str):
-    target_shape = (128, 128)  # (W, H)
     files = sorted(glob(os.path.join(in_dir, "*", "images", "*.jpg")))
-    keypoints_adder(files, p, target_shape)
+    keypoints_adder(files, p, target_shape=(128, 128))
 
 
 # # *******************************************************************************************************************

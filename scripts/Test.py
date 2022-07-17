@@ -7,14 +7,14 @@ from glob import glob
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-from gazetracker.models.gazetrack import gazetrack_model
-from gazetracker.dataset.loader import Gaze_Capture
+from gazetracker.models.gazetrack import GazeTracker
+from gazetracker.dataset.loader import GazeCapture
 from gazetracker.utils.visualizer import euc, get_colors
 
 root = os.environ['SLURM_TMPDIR']
 
 # ## Load model and weights
-model = gazetrack_model()
+model = GazeTracker()
 if torch.cuda.is_available():
     dev = torch.device('cuda:0')
 else:
@@ -27,7 +27,7 @@ model.eval()
 
 # ## Run predictions on entire test set
 file_root = root + "/gt_fin/test/"
-test_dataset = Gaze_Capture(file_root, split='test')
+test_dataset = GazeCapture(file_root, size=(128, 128), verbose=True)
 test_dataloader = DataLoader(test_dataset, batch_size=256, num_workers=10, pin_memory=False, shuffle=False)
 
 preds, gt = [], []
@@ -70,7 +70,7 @@ ctr = 1
 f = files[idx]
 # f = root+'/dataset/train/images/'
 fs = glob(f + "*.jpg")
-test_dataset = Gaze_Capture(f, split='test')
+test_dataset = GazeCapture(f, size=(128, 128), verbose=True)
 test_dataloader = DataLoader(test_dataset, batch_size=256, num_workers=10, pin_memory=False, shuffle=False, )
 
 for j in tqdm(test_dataloader):
@@ -116,7 +116,7 @@ for idx in tqdm(range(len(files))):
     preds, gt = [], []
     ctr = 1
     f = files[idx]
-    test_dataset = Gaze_Capture(f, split='test', verbose=False)
+    test_dataset = GazeCapture(f, size=(128, 128), verbose=False)
     test_dataloader = DataLoader(test_dataset, batch_size=30, num_workers=10, pin_memory=False, shuffle=False, )
 
     for j in test_dataloader:

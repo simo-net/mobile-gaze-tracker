@@ -42,24 +42,24 @@ def train_epoch(model, criterion, optimizer, device, data_loader,
     losses = np.zeros(steps_in_epoch, dtype=np.float32)
     # accuracies = np.zeros(steps_in_epoch, dtype=np.float32)
 
-    example_idx = 0
     log_frequency = 5
-    log_image_frequency = 5
     print_frequency = 5
     epoch_start_time = time.time()
-    for step, (x, y) in enumerate(data_loader):
+    for step, batch in enumerate(data_loader):
         start_time = time.time()
 
         # Prepare for next iteration
         optimizer.zero_grad()
 
         # Move inputs to GPU memory
-        x = x.to(device)
+        l_eye, r_eye, kps, y = batch
+        l_eye = l_eye.to(device)
+        r_eye = r_eye.to(device)
+        kps = kps.to(device)
         y = y.to(device)
-        # y = torch.unsqueeze(y, -1)
 
         # Feed-forward through the network
-        y_hat = model.forward(x)
+        y_hat = model.forward(l_eye, r_eye, kps)
 
         # Calculate loss
         loss = criterion(y_hat, y)
@@ -99,12 +99,6 @@ def train_epoch(model, criterion, optimizer, device, data_loader,
                 summary_writer.add_scalar('train/examples_per_second', examples_per_second, global_step)
                 summary_writer.add_scalar('train/learning_rate', current_learning_rate(optimizer), global_step)
                 summary_writer.add_scalar('train/weight_decay', current_weight_decay(optimizer), global_step)
-            if step % log_image_frequency == 0:
-                clip_for_display = x[example_idx].clone().cpu()
-                min_val = float(clip_for_display.min())
-                max_val = float(clip_for_display.max())
-                clip_for_display.clamp_(min=min_val, max=max_val)
-                clip_for_display.add_(-min_val).div_(max_val - min_val + 1e-5)
 
     # Epoch statistics
     epoch_duration = float(time.time() - epoch_start_time)
@@ -135,20 +129,22 @@ def validation_epoch(model, criterion, device, data_loader,
     losses = np.zeros(steps_in_epoch, dtype=np.float32)
     # accuracies = np.zeros(steps_in_epoch, dtype=np.float32)
 
-    example_idx = 0
-    print_frequency = 3
+    log_frequency = 5
+    print_frequency = 5
     epoch_start_time = time.time()
     with torch.no_grad():
-        for step, (x, y) in enumerate(data_loader):
+        for step, batch in enumerate(data_loader):
             start_time = time.time()
 
             # Move inputs to GPU memory
-            x = x.to(device)
+            l_eye, r_eye, kps, y = batch
+            l_eye = l_eye.to(device)
+            r_eye = r_eye.to(device)
+            kps = kps.to(device)
             y = y.to(device)
-            # y = torch.unsqueeze(y, -1)
 
             # Feed-forward through the network
-            y_hat = model.forward(x)
+            y_hat = model.forward(l_eye, r_eye, kps)
 
             # Calculate loss
             loss = criterion(y_hat, y)
@@ -164,6 +160,7 @@ def validation_epoch(model, criterion, device, data_loader,
             losses[step] = loss.item()
             # accuracies[step] = accuracy.item()
 
+            # Print statistics
             if step % print_frequency == 0 and step > 0:
                 print("[{}] Epoch {}. Validation Step {:04d}/{:04d}, Examples/Sec = {:.2f}, "
                       "Loss = {:.3f}".format(  #, Accuracy = {:.3f}".format(
@@ -171,12 +168,13 @@ def validation_epoch(model, criterion, device, data_loader,
                     step, steps_in_epoch, examples_per_second,
                     losses[step]))  #, np.mean(accuracies[step-print_frequency: step])))
 
-            if summary_writer and step == 0:
-                clip_for_display = x[example_idx].clone().cpu()
-                min_val = float(clip_for_display.min())
-                max_val = float(clip_for_display.max())
-                clip_for_display.clamp_(min=min_val, max=max_val)
-                clip_for_display.add_(-min_val).div_(max_val - min_val + 1e-5)
+            # Log statistics
+            if summary_writer:
+                if step % log_frequency == 0:
+                    global_step = (epoch * steps_in_epoch) + step  # compute the global step, only for logging
+                    summary_writer.add_scalar('val/loss', losses[step], global_step)
+                    # summary_writer.add_scalar('val/accuracy', accuracies[step], global_step)
+                    summary_writer.add_scalar('val/examples_per_second', examples_per_second, global_step)
 
     # Epoch statistics
     epoch_duration = float(time.time() - epoch_start_time)
@@ -205,22 +203,22 @@ def testing_epoch(model, criterion, device, data_loader,
 
     targets, predictions = [], []
 
-    example_idx = 0
-    log_frequency = 3
-    log_image_frequency = 6
-    print_frequency = 3
+    log_frequency = 5
+    print_frequency = 5
     epoch_start_time = time.time()
     with torch.no_grad():
-        for step, (x, y) in enumerate(data_loader):
+        for step, batch in enumerate(data_loader):
             start_time = time.time()
 
             # Move inputs to GPU memory
-            x = x.to(device)
+            l_eye, r_eye, kps, y = batch
+            l_eye = l_eye.to(device)
+            r_eye = r_eye.to(device)
+            kps = kps.to(device)
             y = y.to(device)
-            # y = torch.unsqueeze(y, -1)
 
             # Feed-forward through the network
-            y_hat = model.forward(x)
+            y_hat = model.forward(l_eye, r_eye, kps)
             predictions.append(y_hat)
             targets.append(y)
 
@@ -253,12 +251,6 @@ def testing_epoch(model, criterion, device, data_loader,
                     summary_writer.add_scalar('test/loss', losses[step], global_step)
                     # summary_writer.add_scalar('test/accuracy', accuracies[step], global_step)
                     summary_writer.add_scalar('test/examples_per_second', examples_per_second, global_step)
-                if step % log_image_frequency == 0:
-                    clip_for_display = x[example_idx].clone().cpu()
-                    min_val = float(clip_for_display.min())
-                    max_val = float(clip_for_display.max())
-                    clip_for_display.clamp_(min=min_val, max=max_val)
-                    clip_for_display.add_(-min_val).div_(max_val - min_val + 1e-5)
 
     # Epoch statistics
     epoch_duration = float(time.time() - epoch_start_time)

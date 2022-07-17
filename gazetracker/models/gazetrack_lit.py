@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import ExponentialLR, ReduceLROnPlateau
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
-from gazetracker.dataset.loader import Gaze_Capture
+from gazetracker.dataset.loader import GazeCapture
 from gazetracker.models.base import eye_model, landmark_model
 
 
@@ -57,19 +57,19 @@ class lit_gazetrack_model(pl.LightningModule):
         return out
 
     def train_dataloader(self):
-        train_dataset = Gaze_Capture(os.path.join(self.data_path, "train"), split='train')
+        train_dataset = GazeCapture(os.path.join(self.data_path, "train"))
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, num_workers=self.workers, shuffle=True)
         self.logger.log_hyperparams({'Num_train_files': len(train_dataset)})
         return train_loader
 
     def val_dataloader(self):
-        val_dataset = Gaze_Capture(os.path.join(self.data_path, "val"), split='val')
+        val_dataset = GazeCapture(os.path.join(self.data_path, "val"))
         val_loader = DataLoader(val_dataset, batch_size=self.batch_size, num_workers=self.workers, shuffle=False)
         self.logger.log_hyperparams({'Num_val_files': len(val_dataset)})
         return val_loader
 
     def training_step(self, batch, batch_idx):
-        _, l_eye, r_eye, kps, y, _, _ = batch
+        l_eye, r_eye, kps, y = batch
         y_hat = self.forward(l_eye, r_eye, kps)
 
         loss = F.mse_loss(y_hat, y)
@@ -78,7 +78,7 @@ class lit_gazetrack_model(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        _, l_eye, r_eye, kps, y, _, _ = batch
+        l_eye, r_eye, kps, y = batch
         y_hat = self.forward(l_eye, r_eye, kps)
 
         val_loss = F.mse_loss(y_hat, y)

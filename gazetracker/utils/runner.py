@@ -1,7 +1,7 @@
 import os
 import torch
 import numpy as np
-import torch.nn.functional as F
+from torch import nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 from gazetracker.utils.iterators import train_epoch, validation_epoch, testing_epoch, save_checkpoint, load_checkpoint
@@ -15,9 +15,9 @@ def train(model, train_loader, val_loader,
           checkpoint_dir: str = None,
           checkpoint_frequency: int or None = None,
           batch_size: int = 5,
-          patience: int = 5,
-          max_num_epochs: int = 50, lr: float = 0.005, momentum: float = 0.9, weight_decay: float = 0.,
-          lr_scheduler: str or None = 'plateau', lr_sched_patience: int = 2, optimizer: str = 'sgd',
+          max_num_epochs: int = 50, patience: int = 5,
+          lr: float = 0.016, betas: (float, float) = (0.9, 0.999), epsilon: float = 1e-7,
+          lr_scheduler: str or None = 'plateau', lr_sched_patience: int = 2,
           device=torch.device('cpu'), seed: int = None):
     if seed is not None:
         torch.manual_seed(seed)
@@ -25,12 +25,10 @@ def train(model, train_loader, val_loader,
     # configuration options
     writer = SummaryWriter(log_dir=checkpoint_dir) if checkpoint_dir else None
     early_stopping = True if 0 < patience < max_num_epochs else False
-    assert optimizer in ['sgd', 'adam'], 'Optimizer can either be "sgd" or "adam".'
 
     # configure optimizer and criterion
-    criterion = F.mse_loss()
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay) if optimizer == 'sgd' \
-        else optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr, betas=betas, eps=epsilon)
 
     # configure learning-rate scheduler
     if lr_scheduler == 'plateau':
@@ -124,8 +122,8 @@ def test(model, test_loader,
          device=torch.device('cpu')):
 
     # configure optimizer and criterion
-    criterion = F.mse_loss()
-    optimizer = optim.SGD(model.parameters(), lr=5e-3, momentum=0.9, weight_decay=0)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.016, betas=(0.9, 0.999), eps=1e-7)
 
     # load training checkpoint
     if checkpoint_dir is None or not os.path.isdir(checkpoint_dir):

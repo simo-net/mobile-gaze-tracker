@@ -19,7 +19,7 @@ def google_splitter(files: list, out_root: str):
     1. Keep only portrait orientation images
     2. Keep only iPhone images
     3. Keep only images that have valid eye detections
-    4. Split data of each participant into train, test, split
+    4. Split data of each participant into train, test, split  # TODO: is this really done in Google paper?
     """
 
     for participant in files:
@@ -56,11 +56,11 @@ def google_splitter(files: list, out_root: str):
         val_dots = np.unique(all_dots[np.where(valid_mask)])
         try:
             train_dots, test_dots = train_test_split(val_dots, test_size=0.2)
-        except:
+        except ValueError:
             continue  # Too few training dots to split in train and test, skip participant
         try:
             test_dots, val_dots = train_test_split(test_dots, test_size=0.4)
-        except:
+        except ValueError:
             val_dots = []  # Too few test dots to split in test and val, no validation dots for such participant
 
         split_mask = np.zeros(len(valid_mask), dtype=np.uint8)

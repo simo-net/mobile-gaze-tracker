@@ -1,12 +1,11 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-import torch
 import argparse
 import json, pickle
+import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from gazetracker.dataset.loader import Gaze_Capture
-from gazetracker.models.gazetrack import gazetrack_model
+from gazetracker.models.gazetrack import GazeTracker
+from gazetracker.dataset.loader import GazeCapture, create_dataloader
 from gazetracker.utils.runner import NoGPUError, train, test
 
 # Usage:
@@ -15,19 +14,20 @@ from gazetracker.utils.runner import NoGPUError, train, test
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-data_dir', type=str, help='Directory of the training set')
-    parser.add_argument('-log_dir', type=str)
-    parser.add_argument('-batch_size', type=int, default=5)
-    parser.add_argument('-patience', type=int, default=6)
-    parser.add_argument('-max_num_epochs', type=int, default=50)
-    parser.add_argument('-optimizer', type=str, default='adam')
-    parser.add_argument('-lr', type=float, default=5e-3)
-    parser.add_argument('-momentum', type=float, default=0.9)
-    parser.add_argument('-weight_decay', type=float, default=0)
+    parser.add_argument('--data_dir', type=str, required=True,
+                        help='Directory where all data is stored (must contain "train", "val" and "test" folders).')
+    parser.add_argument('--log_dir', type=str, required=True,
+                        help='Directory where to store the results of training.')
+    parser.add_argument('--batch_size', type=int, default=256,
+                        help='Batch size to use for loading the data on GPU memory. Default is 256.')
+    parser.add_argument('--max_num_epochs', type=int, default=30000,
+                        help='Number of epochs to use for training the model. Default is 30000.')
+    parser.add_argument('--patience', type=int, default=10,
+                        help='Number of epochs to use as early-stopping patience. Default is 10.')
+    parser.add_argument('-lr_init', type=float, default=0.016,
+                        help='Initial learning rate value (then changed by scheduler).')
     parser.add_argument('-lr_sched_patience', type=int, default=5)
-    parser.add_argument('-checkpoint_frequency', type=int, default=None)
-    parser.add_argument('-seed', type=int, default=None)
-    parser.add_argument('-workers', type=int, default=4)
+    parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility. Default is None.')
     return parser.parse_args()
 
 
@@ -42,22 +42,27 @@ def main():
         raise NoGPUError('No torch-compatible GPU found. Aborting.')
 
     # Load training dataset ------------------------------------------------------------------------#
-    train_dataset = Gaze_Capture(os.path.join(args.data_dir, "train"), split='train')
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.workers, shuffle=True)
-    val_dataset = Gaze_Capture(os.path.join(args.data_dir, "val"), split='val')
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, num_workers=args.workers, shuffle=False)
+    train_dataset = GazeCapture(root=os.path.join(args.data_dir, "train"), size=(128, 128), verbose=True)
+    train_loader = create_dataloader(train_dataset, batch_size=args.batch_size, num_workers=4, shuffle=True)
+    val_dataset = GazeCapture(root=os.path.join(args.data_dir, "val"), size=(128, 128), verbose=True)
+    val_loader = create_dataloader(val_dataset, batch_size=args.batch_size, num_workers=4, shuffle=True)
+    # NUM_TRAIN_SAMPLES = len(train_dataset)
+    # NUM_VAL_SAMPLES = len(val_dataset)
+    # num_train_samples = NUM_TRAIN_SAMPLES - NUM_VAL_SAMPLES
+    # num_train_batches = num_train_samples // args.batch_size
+    # num_val_batches = NUM_VAL_SAMPLES // args.batch_size
 
     # Build the model ------------------------------------------------------------------------------#
-    model = gazetrack_model()
+    model = GazeTracker()
     if device.type == 'cuda':
         model.cuda()
         model = nn.DataParallel(model)
 
     # Training -------------------------------------------------------------------------------------#
     _, history = train(model, train_loader, val_loader,
-                       checkpoint_dir=args.log_dir, checkpoint_frequency=args.checkpoint_frequency,
-                       max_num_epochs=args.max_num_epochs, batch_size=args.batch_size, patience=args.patience,
-                       optimizer=args.optimizer, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay,
+                       checkpoint_dir=args.log_dir, checkpoint_frequency=None,
+                       batch_size=args.batch_size, max_num_epochs=args.max_num_epochs, patience=args.patience,
+                       lr=args.lr_init, betas=(0.9, 0.999), epsilon=1e-7,
                        lr_scheduler='plateau', lr_sched_patience=args.lr_sched_patience,
                        device=device, seed=args.seed)
     # Store training history
@@ -67,8 +72,10 @@ def main():
 
     # Load testing dataset -------------------------------------------------------------------------#
     del train_dataset, val_dataset, train_loader, val_loader
-    test_dataset = Gaze_Capture(os.path.join(args.data_dir, "test"), split='test')
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.workers, shuffle=False)
+    test_dataset = GazeCapture(root=os.path.join(args.data_dir, "test"), size=(128, 128), verbose=True)
+    test_loader = create_dataloader(test_dataset, batch_size=args.batch_size, num_workers=4, shuffle=False)
+    # NUM_TEST_SAMPLES = len(test_dataset)
+    # num_test_batches = NUM_TEST_SAMPLES // args.batch_size
 
     # Testing --------------------------------------------------------------------------------------#
     test_loss, [targets, predictions] = test(model, test_loader,

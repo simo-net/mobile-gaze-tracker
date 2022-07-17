@@ -1,8 +1,10 @@
 numpy
 tqdm
+pillow
 scikit-learn
 torch
 torchvision
+tensorboardX
 matplotlib
 opencv-python
 dlib
